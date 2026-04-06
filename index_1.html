@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyKavach — Your Shield in the Market</title>
+<meta name="description" content="India's first AI trading behaviour coach. Not tips. Not signals. A guardrail built from 17,596 real trades. Everyone brings a sword. MyKavach is your shield.">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0B1120;color:#E8E6DF;line-height:1.7;}
+
+  /* NAV */
+  nav{display:flex;justify-content:space-between;align-items:center;padding:18px 40px;border-bottom:1px solid #1E2D45;position:sticky;top:0;background:#0B1120;z-index:100;}
+  .logo{font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px;}
+  .logo span{color:#3B82F6;}
+  .nav-cta{background:#3B82F6;color:#fff;border:none;padding:9px 22px;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;}
+
+  /* HERO */
+  .hero{padding:80px 40px 60px;text-align:center;max-width:800px;margin:0 auto;}
+  .hero-badge{display:inline-block;background:#1E2D45;color:#60A5FA;font-size:12px;font-weight:700;padding:5px 16px;border-radius:20px;margin-bottom:24px;letter-spacing:0.8px;text-transform:uppercase;}
+  .hero h1{font-size:44px;font-weight:800;line-height:1.15;color:#fff;margin-bottom:20px;letter-spacing:-1px;}
+  .hero h1 span{color:#3B82F6;}
+  .hero-sub{font-size:17px;color:#94A3B8;max-width:580px;margin:0 auto 16px;line-height:1.7;}
+  .hero-philosophy{font-size:15px;color:#60A5FA;font-style:italic;margin-bottom:36px;font-weight:500;}
+  .hero-btn{display:inline-block;background:#3B82F6;color:#fff;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;margin-bottom:12px;}
+  .hero-note{font-size:12px;color:#475569;margin-bottom:48px;}
+  .hero-stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;}
+  .h-stat-num{font-size:28px;font-weight:800;color:#EF4444;}
+  .h-stat-num.blue{color:#3B82F6;}
+  .h-stat-label{font-size:11px;color:#64748B;margin-top:2px;}
+
+  /* SECTIONS */
+  section{padding:60px 40px;max-width:800px;margin:0 auto;}
+  .section-label{font-size:11px;font-weight:700;color:#3B82F6;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+  .section-title{font-size:30px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px;}
+  .section-sub{font-size:15px;color:#64748B;margin-bottom:32px;}
+
+  /* STORY */
+  .story-box{background:#111827;border:1px solid #1E2D45;border-radius:14px;padding:32px;}
+  .story-box h2{font-size:22px;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3;}
+  .story-box p{color:#94A3B8;font-size:15px;margin-bottom:14px;line-height:1.75;}
+  .story-box p:last-child{margin-bottom:0;}
+  .highlight{color:#EF4444;font-weight:700;}
+  .highlight-blue{color:#3B82F6;font-weight:700;}
+
+  /* DATA CARDS */
+  .data-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:24px 0;}
+  .data-card{background:#0F1D2E;border:1px solid #1E2D45;border-radius:10px;padding:20px;}
+  .data-num{font-size:24px;font-weight:800;margin-bottom:6px;}
+  .data-num.red{color:#EF4444;}
+  .data-num.amber{color:#F59E0B;}
+  .data-num.blue{color:#3B82F6;}
+  .data-num.green{color:#10B981;}
+  .data-desc{font-size:12px;color:#64748B;line-height:1.6;}
+
+  /* QUOTES */
+  .quote-block{border-left:3px solid #EF4444;background:#111827;padding:18px 22px;border-radius:0 10px 10px 0;margin:14px 0;}
+  .quote-text{font-size:14px;color:#CBD5E1;font-style:italic;line-height:1.7;margin-bottom:8px;}
+  .quote-attr{font-size:11px;color:#475569;}
+
+  /* FEATURES */
+  .feature-list{display:flex;flex-direction:column;gap:12px;}
+  .feature-item{background:#111827;border:1px solid #1E2D45;border-radius:12px;padding:20px 22px;display:flex;gap:16px;align-items:flex-start;}
+  .feat-num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;background:#3B82F6;}
+  .feat-num.red{background:#EF4444;}
+  .feat-num.amber{background:#F59E0B;}
+  .feat-num.green{background:#10B981;}
+  .feat-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:5px;}
+  .feat-desc{font-size:13px;color:#64748B;line-height:1.6;}
+  .feat-example{font-size:12px;color:#3B82F6;margin-top:6px;font-style:italic;}
+
+  /* DIVIDER */
+  .divider{border:none;border-top:1px solid #1E2D45;margin:0;}
+
+  /* PHILOSOPHY */
+  .philosophy-box{background:#111827;border:1px solid #1E2D45;border-radius:14px;padding:36px;text-align:center;}
+  .philosophy-box h2{font-size:26px;font-weight:800;color:#fff;margin-bottom:16px;line-height:1.3;}
+  .sword{color:#EF4444;}
+  .shield{color:#3B82F6;}
+  .philosophy-box p{font-size:15px;color:#94A3B8;line-height:1.75;max-width:560px;margin:0 auto;}
+
+  /* WAITLIST SECTION */
+  .waitlist-box{background:linear-gradient(135deg,#111827 0%,#0A1628 100%);border:1px solid #1E2D45;border-radius:16px;padding:48px 40px;text-align:center;}
+  .waitlist-box h2{font-size:28px;font-weight:800;color:#fff;margin-bottom:12px;line-height:1.3;}
+  .waitlist-box p{font-size:15px;color:#64748B;margin-bottom:28px;}
+  .waitlist-btn{display:inline-block;background:#3B82F6;color:#fff;padding:14px 36px;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;}
+  .waitlist-note{font-size:12px;color:#334155;margin-top:12px;}
+
+  /* FOOTER */
+  footer{border-top:1px solid #1E2D45;padding:28px 40px;text-align:center;}
+  footer p{font-size:12px;color:#334155;line-height:1.8;}
+
+  /* RESPONSIVE */
+  @media(max-width:600px){
+    nav{padding:14px 20px;}
+    .hero{padding:48px 20px 40px;}
+    .hero h1{font-size:28px;}
+    .hero-stats{gap:24px;}
+    section{padding:40px 20px;}
+    .data-grid{grid-template-columns:1fr;}
+    .story-box{padding:22px;}
+    .waitlist-box{padding:32px 20px;}
+    .philosophy-box{padding:24px;}
+  }
+</style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-540717386C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-540717386C');
+</script>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">My<span>Kavach</span></div>
+  <a href="https://881cf2b9.sibforms.com/serve/MUIFAGXmCokhBkcbBq-Z7bDuP6xl3EWcRxCnlf18w6i4TVHGCJoC9c7Q1WQlOmnMH_fnxHMpamD0NqsWm1yzUcR3yvGsZhqCqKdNd0v_dGLozlDNHyOiWeLjPhoPwYdEBI9EqmhU27U4XhCOvOMqAi47b4n6heeRlb9yGizielY31LvjNYYZVIRc0SnAWai5CK3Od-lZry9y4L4FFA==" target="_blank" class="nav-cta">Join Waitlist →</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">India's First AI Trading Behaviour Coach</div>
+  <h1>Everyone in the market<br>brings a <span style="color:#EF4444;">sword.</span><br>MyKavach is your <span>shield.</span></h1>
+  <p class="hero-sub">93% of Indian F&O traders lose money — not because their strategy is wrong, but because their behaviour is. MyKavach is the guardrail that stops you from destroying yourself.</p>
+  <p class="hero-philosophy">"Save first. Then earn."</p>
+  <a href="https://881cf2b9.sibforms.com/serve/MUIFAGXmCokhBkcbBq-Z7bDuP6xl3EWcRxCnlf18w6i4TVHGCJoC9c7Q1WQlOmnMH_fnxHMpamD0NqsWm1yzUcR3yvGsZhqCqKdNd0v_dGLozlDNHyOiWeLjPhoPwYdEBI9EqmhU27U4XhCOvOMqAi47b4n6heeRlb9yGizielY31LvjNYYZVIRc0SnAWai5CK3Od-lZry9y4L4FFA==" target="_blank" class="hero-btn">Join Free Waitlist →</a>
+  <p class="hero-note">Free to join · No credit card · Early members get 3 months free on launch</p>
+  <div class="hero-stats">
+    <div class="h-stat">
+      <div class="h-stat-num">93%</div>
+      <div class="h-stat-label">of F&O traders lose money<br>SEBI FY22–FY24</div>
+    </div>
+    <div class="h-stat">
+      <div class="h-stat-num">₹2L</div>
+      <div class="h-stat-label">average loss per trader<br>over 3 years</div>
+    </div>
+    <div class="h-stat">
+      <div class="h-stat-num blue">17,596</div>
+      <div class="h-stat-label">real trades analysed<br>to build this product</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- PHILOSOPHY -->
+<section>
+  <div class="philosophy-box">
+    <h2>Everyone comes to the market looking for a better <span class="sword">sword.</span><br>Strategies. Tips. Indicators. Charts.<br>Nobody brings a <span class="shield">shield.</span></h2>
+    <p>Knowledge of the market is your sword. But 93% of traders lose — not because their sword is weak, but because they have no protection against themselves. Against the revenge trade at 9:15 AM. Against the 81-trade spiral. Against the hope that the next bet will fix everything. MyKavach is the shield nobody else is building.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FOUNDER STORY -->
+<section>
+  <p class="section-label">The founder story</p>
+  <div class="story-box">
+    <h2>I was one of those 9 out of 10. Here is exactly what happened.</h2>
+    <p>I am a 28-year-old CMA professional working as a CFO in a pharma startup. I understand leverage, risk models, and financial statements at a company level. I thought that would make me a disciplined trader.</p>
+    <p>It did not. I placed <span class="highlight">81 trades in a single day</span> trying to recover losses. I traded Nifty options every Thursday — expiry day — buying cheap premiums that theta was destroying by the hour. I had no stop loss on a single trade. I lost most money in the first 45 minutes of every session. I made ₹20,000 one day and lost ₹35,000 the next trying to repeat it.</p>
+    <p>I knew exactly what I was doing wrong. I could list every mistake. I still made them — because <span class="highlight-blue">knowing is not enough. You need something that stops you at the exact moment of the bad decision.</span></p>
+    <p>I analysed 17,596 real trades across 5 Indian traders including my own. Found the same 4 patterns in every single account. So I built the tool I needed when I was losing.</p>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DATA PROOF -->
+<section>
+  <p class="section-label">What the data actually shows</p>
+  <p class="section-title">17,596 real trades.<br>The same 4 patterns. Every account.</p>
+  <p class="section-sub">Across 5 real Indian traders — different ages, different cities, different brokers — the same mistakes appear in every single account without exception.</p>
+
+  <div class="data-grid">
+    <div class="data-card">
+      <div class="data-num red">₹87,000</div>
+      <div class="data-desc">Lost in the 9AM hour alone across just 2 accounts. The most dangerous 45 minutes of the trading day — and the most popular entry time for retail traders.</div>
+    </div>
+    <div class="data-card">
+      <div class="data-num red">81 & 139</div>
+      <div class="data-desc">Maximum trades placed in a single day by two different traders on two different platforms. Not a strategy. A revenge spiral with no circuit breaker to stop it.</div>
+    </div>
+    <div class="data-card">
+      <div class="data-num amber">₹3.43L</div>
+      <div class="data-desc">Paid in brokerage and transaction charges alone by one trader over 3 years — without ever knowing this number. The market did not beat this trader. The cost structure did.</div>
+    </div>
+    <div class="data-card">
+      <div class="data-num green">1 trader</div>
+      <div class="data-desc">Had positive P&L across our research. His secret: 7% Thursday trades vs 40%. 4% same-day expiry vs 39%. He avoided the behaviours — not the market. That is the entire product.</div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:#334155;text-align:center;">Source: Zerodha & Mirae Asset tradebooks from 5 real Indian traders · 2019–2026 · SEBI Annual F&O Studies FY22–FY25</p>
+</section>
+
+<hr class="divider">
+
+<!-- REAL VOICES -->
+<section>
+  <p class="section-label">Real people. Real words.</p>
+  <p class="section-title">These are not made up.<br>These are from Zerodha's own forum.</p>
+
+  <div class="quote-block">
+    <div class="quote-text">"I made 2L one day and started daydreaming about getting rich quick. By Dec 2023 I was at 32L loss. I took loans. EMI pressure mounted and I started again. No one in my family knows. Everyone thinks I earn great and wants me to buy a home."</div>
+    <div class="quote-attr">— dc246, Zerodha TradingQnA · 28 years old · ₹50L+ lost</div>
+  </div>
+
+  <div class="quote-block">
+    <div class="quote-text">"I got 4 lakhs from my parents — their savings — but again I put that money and lost it. I have attended counselling but still not able to control my addiction. I am not doing trading anymore — just doing gambling. I want to live."</div>
+    <div class="quote-attr">— catundermybed, Zerodha TradingQnA · ₹14L lost including parents' savings</div>
+  </div>
+
+  <div class="quote-block">
+    <div class="quote-text">"I lost 13 lakhs within 11 months. Hard earned money. No stoploss at all. Took profit of 10-12 points but loss of 40-50. I am completely frustrated and unable to do work in office as well."</div>
+    <div class="quote-attr">— acd555, Zerodha TradingQnA · Credit card and loan spiral</div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- FEATURES -->
+<section>
+  <p class="section-label">The product</p>
+  <p class="section-title">8 shields. Each built from<br>a real trader's real mistake.</p>
+  <p class="section-sub">MyKavach does not tell you what to buy or sell. It stops you from doing what you already know you should not do.</p>
+
+  <div class="feature-list">
+    <div class="feature-item">
+      <div class="feat-num red">1</div>
+      <div>
+        <div class="feat-title">Stop Loss Gate</div>
+        <div class="feat-desc">Cannot log any trade without entering a stop loss price first. The gate is the feature. You knew you needed one. This makes bypassing it impossible in the heat of the moment.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num red">2</div>
+      <div>
+        <div class="feat-title">Position Size Enforcer</div>
+        <div class="feat-desc">Every trade shown as % of your capital vs your pre-set safe limit. Displays your personal historical loss rate on oversized trades.</div>
+        <div class="feat-example">"This trade is 38% of your capital. Your loss rate on trades above 20%: 74%."</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num amber">3</div>
+      <div>
+        <div class="feat-title">Revenge Trade Detector</div>
+        <div class="feat-desc">Trade placed within 20 minutes of a loss — flagged instantly with your personal win rate in that window, built from your own history.</div>
+        <div class="feat-example">"You lost ₹4,200 eleven minutes ago. Your win rate in this window: 12%."</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num amber">4</div>
+      <div>
+        <div class="feat-title">Daily Circuit Breaker</div>
+        <div class="feat-desc">Set your daily max loss calmly before 9:15 AM. When hit — trade logging locks for the day. No override in the heat of the moment. The inability to override is the entire feature.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num" style="background:#8B5CF6;">5</div>
+      <div>
+        <div class="feat-title">Post-Win Warning</div>
+        <div class="feat-desc">After any trade making 2x your average win — mandatory alert before next session. One trader earned ₹1Cr over 3 years and lost ₹95L in one overconfident day. This stops that.</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num" style="background:#0891B2;">6</div>
+      <div>
+        <div class="feat-title">Time-of-Day Intelligence</div>
+        <div class="feat-desc">Shows your personal P&L by hour before you trade — built from your own data, not generic advice.</div>
+        <div class="feat-example">"Your 9AM win rate: 31%. Your 12PM win rate: 68%. It is 9:22 AM right now."</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num green">7</div>
+      <div>
+        <div class="feat-title">Weekly Behaviour Report</div>
+        <div class="feat-desc">Every Sunday — not P&L, but behaviour. Times you broke your stop loss rule. Cost of rule-breaking in exact rupees. The mirror nobody else holds up for you.</div>
+        <div class="feat-example">"You broke your stop loss rule 4 times. Those 4 trades cost ₹14,200. Your rule-following trades averaged +₹340."</div>
+      </div>
+    </div>
+    <div class="feature-item">
+      <div class="feat-num green">8</div>
+      <div>
+        <div class="feat-title">Accountability Partner</div>
+        <div class="feat-desc">One trusted person gets a WhatsApp notification when your circuit breaker trips. No amounts — just the signal. Because isolation is the trader's worst enemy.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- PRICING -->
+<section>
+  <p class="section-label">Pricing</p>
+  <p class="section-title">Less than one bad trade<br>costs you per month.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:24px 0;">
+    <div style="background:#111827;border:1px solid #1E2D45;border-radius:12px;padding:22px 18px;">
+      <div style="font-size:10px;font-weight:700;color:#64748B;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">FREE</div>
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;">Starter</div>
+      <div style="font-size:26px;font-weight:800;color:#fff;">₹0</div>
+      <div style="font-size:12px;color:#475569;margin-bottom:16px;">forever</div>
+      <div style="font-size:12px;color:#64748B;line-height:1.8;">Knowledge Gate<br>Paper trading mode<br>Basic circuit breaker</div>
+    </div>
+    <div style="background:#0A1628;border:2px solid #3B82F6;border-radius:12px;padding:22px 18px;">
+      <div style="font-size:10px;font-weight:700;color:#3B82F6;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">MOST POPULAR</div>
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;">Guard</div>
+      <div style="font-size:26px;font-weight:800;color:#fff;">₹149</div>
+      <div style="font-size:12px;color:#475569;margin-bottom:16px;">per month</div>
+      <div style="font-size:12px;color:#64748B;line-height:1.8;">All 8 shields<br>Weekly behaviour report<br>Accountability partner<br>Personal analytics</div>
+    </div>
+    <div style="background:#111827;border:1px solid #1E2D45;border-radius:12px;padding:22px 18px;">
+      <div style="font-size:10px;font-weight:700;color:#64748B;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">PRO</div>
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;">Pro</div>
+      <div style="font-size:26px;font-weight:800;color:#fff;">₹349</div>
+      <div style="font-size:12px;color:#475569;margin-bottom:16px;">per month</div>
+      <div style="font-size:12px;color:#64748B;line-height:1.8;">Guard +<br>IV rank dashboard<br>Options Greeks<br>Priority AI coach</div>
+    </div>
+  </div>
+  <p style="font-size:13px;color:#334155;text-align:center;">Early waitlist members get 3 months free on launch. No credit card required to join.</p>
+</section>
+
+<hr class="divider">
+
+<!-- FINAL CTA -->
+<section>
+  <div class="waitlist-box">
+    <h2>SEBI's warnings didn't work.<br>Regulations didn't work.<br>We built the shield instead.</h2>
+    <p>Join the waitlist. First 500 members get 3 months free. No credit card. No spam.</p>
+    <a href="https://881cf2b9.sibforms.com/serve/MUIFAGXmCokhBkcbBq-Z7bDuP6xl3EWcRxCnlf18w6i4TVHGCJoC9c7Q1WQlOmnMH_fnxHMpamD0NqsWm1yzUcR3yvGsZhqCqKdNd0v_dGLozlDNHyOiWeLjPhoPwYdEBI9EqmhU27U4XhCOvOMqAi47b4n6heeRlb9yGizielY31LvjNYYZVIRc0SnAWai5CK3Od-lZry9y4L4FFA==" target="_blank" class="waitlist-btn">Join Free Waitlist →</a>
+    <p class="waitlist-note">Built by someone who was one of those 9 out of 10.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong style="color:#fff;">MyKavach</strong> — Your shield in the market.</p>
+  <p style="margin-top:8px;">MyKavach is an educational and behaviour tracking tool. It does not provide investment advice, stock tips, or buy/sell recommendations. Not registered as a SEBI Investment Advisor. All trading involves risk.</p>
+  <p style="margin-top:8px;">© 2025 MyKavach · Built in India · mykavach.in</p>
+</footer>
+
+</body>
+</html>
