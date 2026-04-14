@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyKavach — Apna Trading Mirror</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white:#FFFFFF; --off:#F7F6F3; --light:#EEECE8; --border:#E0DDD7;
+    --text:#1C1B18; --muted:#7A7670; --accent:#2563EB; --accent-l:#EEF3FD;
+    --red:#DC2626; --red-l:#FEF2F2; --red-m:#FCA5A5;
+    --green:#16A34A; --green-l:#F0FDF4;
+    --amber:#D97706; --amber-l:#FFFBEB;
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Plus Jakarta Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);background:var(--white);color:var(--text);-webkit-font-smoothing:antialiased;}
+
+  /* NAV */
+  nav{display:flex;justify-content:space-between;align-items:center;padding:0 48px;height:60px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--white);z-index:99;}
+  .nav-brand{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--text);}
+  .nav-brand span{color:var(--accent);}
+  .nav-secure{font-size:11px;color:var(--muted);}
+
+  /* UPLOAD */
+  .screen{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;}
+  .upload-wrap{max-width:600px;width:100%;}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--accent-l);color:var(--accent);font-size:11px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:28px;}
+  .eyebrow::before{content:'';width:6px;height:6px;background:var(--accent);border-radius:50%;}
+  .hero-h1{font-family:var(--serif);font-size:40px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:14px;letter-spacing:-0.5px;}
+  .hero-h1 em{font-style:italic;color:var(--accent);}
+  .hero-sub{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:36px;}
+
+  .drop-zone{border:1.5px dashed var(--border);border-radius:14px;padding:40px 32px;text-align:center;background:var(--off);cursor:pointer;transition:all 0.25s;margin-bottom:16px;}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-l);}
+  .drop-icon{width:52px;height:52px;background:var(--white);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+  .drop-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px;}
+  .drop-sub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .btn-primary{background:var(--text);color:var(--white);border:none;padding:11px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+  .btn-primary:hover{background:#2d2c29;}
+  .drop-note{font-size:11px;color:var(--muted);margin-top:12px;}
+
+  .file-list{background:var(--white);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;display:none;}
+  .file-list-head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--off);}
+  .file-list-title{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;}
+  .file-count-badge{background:var(--accent);color:var(--white);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;}
+  .file-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);font-size:13px;}
+  .file-item:last-child{border-bottom:none;}
+  .file-icon{font-size:16px;flex-shrink:0;}
+  .file-name{flex:1;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .file-sz{font-size:10px;color:#aaa;flex-shrink:0;}
+  .file-status{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;flex-shrink:0;}
+  .file-status.pending{background:var(--amber-l);color:var(--amber);}
+  .file-status.done{background:var(--green-l);color:var(--green);}
+  .file-status.error{background:var(--red-l);color:var(--red);}
+  .file-remove{background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;padding:0 4px;flex-shrink:0;line-height:1;}
+  .file-remove:hover{color:var(--red);}
+
+  .action-row{display:flex;gap:10px;margin-bottom:20px;}
+  .btn-add{flex:1;background:var(--off);border:1px solid var(--border);color:var(--text);padding:11px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+  .btn-add:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-analyse{flex:2;background:var(--accent);color:var(--white);border:none;padding:11px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+  .btn-analyse:hover{background:#1d4ed8;}
+
+  .steps-box{background:var(--off);border:1px solid var(--border);border-radius:12px;padding:20px 24px;}
+  .steps-head{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:14px;}
+  .step{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+  .step:last-child{margin-bottom:0;}
+  .step-n{width:22px;height:22px;border-radius:50%;background:var(--white);border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .step-t{font-size:13px;color:var(--muted);line-height:1.5;}
+  .step-t b{color:var(--text);font-weight:600;}
+  .err-box{background:var(--red-l);border:1px solid #FECACA;border-radius:8px;padding:12px 16px;color:var(--red);font-size:13px;display:none;margin-bottom:12px;}
+
+  /* LOADING */
+  .loading-screen{display:none;min-height:calc(100vh - 60px);align-items:center;justify-content:center;flex-direction:column;gap:20px;}
+  .spinner{width:40px;height:40px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.75s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-txt{font-size:14px;color:var(--muted);font-weight:500;}
+  .loading-detail{font-size:12px;color:#bbb;text-align:center;max-width:320px;}
+
+  /* RESULTS */
+  .results-wrap{display:none;max-width:820px;margin:0 auto;padding:40px 24px 80px;}
+
+  .r-topbar{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:12px;}
+  .r-title{font-family:var(--serif);font-size:28px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .r-sub{font-size:12px;color:var(--muted);}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--sans);}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+
+  /* AI COACH SECTION */
+  .coach-box{background:var(--text);border-radius:16px;padding:32px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .coach-box::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:rgba(255,255,255,0.03);border-radius:50%;}
+  .coach-tag{font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+  .coach-verdict{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--white);line-height:1.35;margin-bottom:16px;}
+  .coach-body{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.75;}
+  .coach-loading{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.5);font-size:13px;}
+  .coach-dots span{animation:blink 1.2s infinite;display:inline-block;}
+  .coach-dots span:nth-child(2){animation-delay:0.2s;}
+  .coach-dots span:nth-child(3){animation-delay:0.4s;}
+  @keyframes blink{0%,80%,100%{opacity:0;}40%{opacity:1;}}
+
+  /* STAT GRID */
+  .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:28px;}
+  .stat-cell{background:var(--white);padding:20px 18px;}
+  .stat-n{font-family:var(--serif);font-size:30px;font-weight:700;margin-bottom:4px;line-height:1;}
+  .stat-l{font-size:11px;color:var(--muted);font-weight:500;}
+  .stat-s{font-size:10px;color:#aaa;margin-top:3px;}
+  .c-red{color:var(--red);}.c-green{color:var(--green);}.c-blue{color:var(--accent);}.c-amber{color:var(--amber);}
+
+  /* INSIGHT CARDS — NEW STYLE */
+  .insights-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;}
+  .insight-card{border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden;}
+  .insight-card.severity-high{border-color:#FECACA;background:var(--red-l);}
+  .insight-card.severity-medium{border-color:#FDE68A;background:var(--amber-l);}
+  .insight-card.severity-good{border-color:#BBF7D0;background:var(--green-l);}
+  .insight-card.severity-info{border-color:var(--border);background:var(--off);}
+  .ic-severity{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .ic-severity.high{color:var(--red);}
+  .ic-severity.medium{color:var(--amber);}
+  .ic-severity.good{color:var(--green);}
+  .ic-severity.info{color:var(--muted);}
+  .ic-severity::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .ic-number{font-family:var(--serif);font-size:36px;font-weight:800;line-height:1;margin-bottom:6px;}
+  .ic-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;}
+  .ic-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+  .ic-action{font-size:11px;font-weight:600;margin-top:10px;padding:6px 12px;border-radius:6px;display:inline-block;}
+  .ic-action.high{background:var(--red);color:white;}
+  .ic-action.medium{background:var(--amber);color:white;}
+  .ic-action.good{background:var(--green);color:white;}
+
+  /* PATTERN STORIES */
+  .pattern-section{margin-bottom:28px;}
+  .sect-head{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+  .sect-head::after{content:'';flex:1;height:1px;background:var(--border);}
+
+  .story-card{border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:12px;background:var(--white);}
+  .story-card.warning{border-left:4px solid var(--red);}
+  .story-card.caution{border-left:4px solid var(--amber);}
+  .story-card.positive{border-left:4px solid var(--green);}
+  .story-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px;}
+  .story-title{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;}
+  .story-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+  .badge-red{background:var(--red-l);color:var(--red);}
+  .badge-amber{background:var(--amber-l);color:var(--amber);}
+  .badge-green{background:var(--green-l);color:var(--green);}
+  .story-body{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:14px;}
+  .story-body strong{color:var(--text);font-weight:600;}
+  .story-data{display:flex;gap:16px;flex-wrap:wrap;padding:14px;background:var(--off);border-radius:8px;margin-bottom:12px;}
+  .sd-item{text-align:center;}
+  .sd-num{font-family:var(--serif);font-size:20px;font-weight:700;}
+  .sd-lbl{font-size:10px;color:var(--muted);font-weight:500;margin-top:2px;}
+  .story-action{font-size:12px;font-weight:600;color:var(--accent);display:flex;align-items:center;gap:5px;}
+  .story-action::before{content:'→';}
+
+  /* BARS */
+  .bar-section{background:var(--off);border:1px solid var(--border);border-radius:10px;padding:20px 22px;margin-bottom:12px;}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .bar-lbl{font-size:12px;color:var(--muted);width:40px;flex-shrink:0;font-weight:500;}
+  .bar-track{flex:1;height:8px;background:var(--light);border-radius:4px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:4px;}
+  .bar-val{font-size:12px;font-weight:600;width:75px;text-align:right;flex-shrink:0;}
+  .bar-cnt{font-size:10px;color:#bbb;margin-left:50px;margin-bottom:4px;}
+  .bar-best{font-size:10px;color:var(--green);margin-left:50px;margin-bottom:4px;font-weight:600;}
+
+  /* RATIO */
+  .ratio-card{border:1px solid var(--border);border-radius:12px;padding:22px;margin-bottom:12px;background:var(--white);}
+  .ratio-visual{display:flex;gap:4px;margin:16px 0;align-items:stretch;height:48px;}
+  .rv-win{background:var(--green-l);border:1px solid #BBF7D0;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;}
+  .rv-loss{background:var(--red-l);border:1px solid #FECACA;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;}
+  .rv-label{font-size:10px;font-weight:700;color:var(--muted);}
+  .rv-val{font-size:13px;font-weight:700;}
+  .ratio-story{font-size:13px;color:var(--muted);line-height:1.7;margin-top:12px;}
+  .ratio-story strong{color:var(--text);}
+  .ratio-breakeven{display:inline-flex;align-items:center;gap:8px;background:var(--off);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:13px;}
+  .rbe-label{color:var(--muted);}
+  .rbe-val{font-weight:700;}
+
+  /* MONTHLY TREND */
+  .monthly-grid{display:grid;gap:6px;}
+  .month-row{display:flex;align-items:center;gap:10px;}
+  .month-lbl{font-size:11px;color:var(--muted);width:55px;flex-shrink:0;}
+  .month-bar-track{flex:1;height:20px;background:var(--light);border-radius:4px;overflow:hidden;position:relative;}
+  .month-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding:0 8px;}
+  .month-bar-text{font-size:10px;font-weight:600;color:white;white-space:nowrap;}
+  .month-val{font-size:11px;font-weight:600;width:70px;text-align:right;flex-shrink:0;}
+
+  /* RECOMMENDATIONS */
+  .rec-section{border-radius:14px;overflow:hidden;margin-bottom:24px;}
+  .rec-header{background:var(--text);padding:24px 28px;}
+  .rec-eyebrow{font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+  .rec-title{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--white);}
+  .rec-items{border:1px solid var(--border);border-top:none;border-radius:0 0 14px 14px;}
+  .rec-item{display:flex;gap:14px;align-items:flex-start;padding:18px 22px;border-bottom:1px solid var(--border);}
+  .rec-item:last-child{border-bottom:none;}
+  .rec-num{width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+  .rec-num.high{background:var(--red-l);color:var(--red);}
+  .rec-num.medium{background:var(--amber-l);color:var(--amber);}
+  .rec-num.low{background:var(--accent-l);color:var(--accent);}
+  .rec-body{flex:1;}
+  .rec-item-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+  .rec-item-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+  .rec-impact{font-size:11px;font-weight:700;margin-top:6px;color:var(--green);}
+
+  /* WAITLIST */
+  .waitlist-box{border:1px solid var(--border);border-radius:12px;padding:28px;text-align:center;}
+  .wl-title{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;}
+  .wl-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6;}
+  .btn-accent{display:inline-block;background:var(--accent);color:var(--white);padding:12px 28px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;}
+
+  @media(max-width:640px){
+    nav{padding:0 20px;}
+    .hero-h1{font-size:28px;}
+    .stat-grid{grid-template-columns:repeat(2,1fr);}
+    .insights-grid{grid-template-columns:1fr;}
+    .results-wrap{padding:28px 16px 60px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">My<span>Kavach</span></div>
+  <div class="nav-secure">🔒 Data sirf aapke browser mein</div>
+</nav>
+
+<!-- UPLOAD -->
+<div class="screen" id="uploadScreen">
+  <div class="upload-wrap">
+    <div class="eyebrow">Free · No Account · No Data Saved</div>
+    <h1 class="hero-h1">Apni trades upload karo.<br><em>Sachai</em> saamne aayegi.</h1>
+    <p class="hero-sub">Zerodha tradebook ya P&L files upload karo — ek ya kai saari bhi. AI coach aapka complete behaviour report banayega.</p>
+
+    <div class="drop-zone" id="uploadZone">
+      <div class="drop-icon">📂</div>
+      <div class="drop-title">Files yahan drop karo</div>
+      <div class="drop-sub">Multiple files ek saath — sab merge ho jayengi</div>
+      <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" multiple style="display:none">
+      <button class="btn-primary" onclick="document.getElementById('fileInput').click()">Files Choose Karo</button>
+      <div class="drop-note">CSV · XLSX · XLS — Zerodha Console export</div>
+    </div>
+
+    <div class="file-list" id="fileList">
+      <div class="file-list-head">
+        <div class="file-list-title">Selected Files</div>
+        <div class="file-count-badge" id="fileCountBadge">0</div>
+      </div>
+      <div id="fileItems"></div>
+    </div>
+
+    <div class="action-row" id="actionRow" style="display:none">
+      <button class="btn-add" onclick="document.getElementById('fileInput').click()">+ Aur Files Add Karo</button>
+      <button class="btn-analyse" onclick="startAnalysis()">Analyse Karo →</button>
+    </div>
+
+    <div class="err-box" id="errorBox"></div>
+
+    <div class="steps-box">
+      <div class="steps-head">Zerodha se files kaise download karein</div>
+      <div class="step"><div class="step-n">1</div><div class="step-t"><b>console.zerodha.com</b> pe jao</div></div>
+      <div class="step"><div class="step-n">2</div><div class="step-t">Reports → <b>Tax P&L</b> ya <b>Tradebook</b> click karo</div></div>
+      <div class="step"><div class="step-n">3</div><div class="step-t">Multiple years ke liye multiple files download karo</div></div>
+      <div class="step"><div class="step-n">4</div><div class="step-t">Sab files ek saath yahan upload karo</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="spinner"></div>
+  <div class="loading-txt" id="loadingTxt">Aapki trades analyse ho rahi hain...</div>
+  <div class="loading-detail" id="loadingDetail">Thoda wait karo</div>
+</div>
+
+<!-- RESULTS -->
+<div class="results-wrap" id="resultsWrap">
+  <div class="r-topbar">
+    <div>
+      <div class="r-title">Aapki Trading Report</div>
+      <div class="r-sub" id="rSub">—</div>
+    </div>
+    <button class="btn-ghost" onclick="resetApp()">← Nayi Files Upload Karo</button>
+  </div>
+
+  <!-- AI COACH -->
+  <div class="coach-box" id="coachBox">
+    <div class="coach-tag">MyKavach AI Coach</div>
+    <div class="coach-loading">
+      <div class="coach-dots"><span>●</span><span>●</span><span>●</span></div>
+      <span>Analysis ho rahi hai...</span>
+    </div>
+  </div>
+
+  <!-- KEY METRICS -->
+  <div class="stat-grid" id="statGrid"></div>
+
+  <!-- INSIGHT CARDS -->
+  <div class="insights-grid" id="insightsGrid"></div>
+
+  <!-- PATTERN STORIES -->
+  <div class="pattern-section">
+    <div class="sect-head">Aapki Trading Patterns — Ek Ek Story</div>
+    <div id="patternStories"></div>
+  </div>
+
+  <!-- DAY ANALYSIS -->
+  <div class="pattern-section">
+    <div class="sect-head">Din ke hisaab se P&L</div>
+    <div class="bar-section" id="dayBars"></div>
+  </div>
+
+  <!-- HOUR ANALYSIS -->
+  <div class="pattern-section">
+    <div class="sect-head">Waqt ke hisaab se P&L</div>
+    <div class="bar-section" id="hourBars"></div>
+  </div>
+
+  <!-- RATIO -->
+  <div class="pattern-section">
+    <div class="sect-head">Win / Loss Ratio — Sabse Important Number</div>
+    <div class="ratio-card" id="ratioCard"></div>
+  </div>
+
+  <!-- MONTHLY TREND -->
+  <div class="pattern-section">
+    <div class="sect-head">Monthly Trend</div>
+    <div class="bar-section" id="monthlyTrend"></div>
+  </div>
+
+  <!-- RECOMMENDATIONS -->
+  <div class="rec-section" id="recSection"></div>
+
+  <div class="waitlist-box">
+    <div class="wl-title">MyKavach App chahiye?</div>
+    <div class="wl-sub">Jab app ready hoga — real-time guardrails jo 9AM pe rok sake, circuit breaker jo override na ho sake — aapko pehle milega. Free.</div>
+    <a href="https://881cf2b9.sibforms.com/serve/MUIFAGXmCokhBkcbBq-Z7bDuP6xl3EWcRxCnlf18w6i4TVHGCJoC9c7Q1WQlOmnMH_fnxHMpamD0NqsWm1yzUcR3yvGsZhqCqKdNd0v_dGLozlDNHyOiWeLjPhoPwYdEBI9EqmhU27U4XhCOvOMqAi47b4n6heeRlb9yGizielY31LvjNYYZVIRc0SnAWai5CK3Od-lZry9y4L4FFA==" target="_blank" class="btn-accent">Waitlist Join Karo →</a>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+let fileQueue = [];
+
+// ── FILE HANDLING ─────────────────────────────────────
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); addFiles(e.dataTransfer.files); });
+
+document.getElementById('fileInput').addEventListener('change', function() {
+  if (!this.files || this.files.length === 0) return;
+  const CHUNK = 10;
+  const all = Array.from(this.files);
+  function processChunk(start) {
+    addFiles(all.slice(start, start + CHUNK));
+    if (start + CHUNK < all.length) setTimeout(() => processChunk(start + CHUNK), 30);
+  }
+  processChunk(0);
+  try { this.value = ''; } catch(e) {}
+});
+
+function handleFileInputChange(input) {
+  if (!input.files || input.files.length === 0) return;
+  // Process in small chunks to avoid browser memory issues with many files
+  const CHUNK = 20;
+  const all = Array.from(input.files);
+  function processChunk(start) {
+    addFiles(all.slice(start, start + CHUNK));
+    if (start + CHUNK < all.length) setTimeout(() => processChunk(start + CHUNK), 50);
+  }
+  processChunk(0);
+  try { input.value = ''; } catch(e) {}
+}
+
+function addFiles(list) {
+  if (!list || list.length === 0) return;
+  const arr = Array.from(list);
+  let added = 0;
+  arr.forEach(f => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    if (['csv','xlsx','xls'].includes(ext) && !fileQueue.find(q => q.name === f.name)) {
+      fileQueue.push({ file: f, name: f.name, status: 'pending' });
+      added++;
+    }
+  });
+  updateFileList();
+  if (added > 0) {
+    document.getElementById('errorBox').style.display = 'none';
+  }
+}
+
+function removeFile(idx) { fileQueue.splice(idx, 1); updateFileList(); }
+
+function updateFileList() {
+  const fl = document.getElementById('fileList');
+  const ar = document.getElementById('actionRow');
+  const badge = document.getElementById('fileCountBadge');
+  const items = document.getElementById('fileItems');
+  if (fileQueue.length === 0) { fl.style.display = 'none'; ar.style.display = 'none'; return; }
+  fl.style.display = 'block'; ar.style.display = 'flex';
+  badge.textContent = fileQueue.length;
+  const statusLabel = { pending: 'Pending', done: '✓ Done', error: '✗ Error' };
+  items.innerHTML = fileQueue.map((f, i) => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    const icon = ext === 'csv' ? '📄' : '📊';
+    const sz = f.file.size > 1048576 ? (f.file.size/1048576).toFixed(1)+'MB' : (f.file.size/1024).toFixed(0)+'KB';
+    return `<div class="file-item"><div class="file-icon">${icon}</div><div class="file-name" title="${f.name}">${f.name}</div><div class="file-sz">${sz}</div><div class="file-status ${f.status}">${statusLabel[f.status]}</div><button class="file-remove" onclick="removeFile(${i})">×</button></div>`;
+  }).join('');
+}
+
+// ── ANALYSIS RUNNER ───────────────────────────────────
+async function startAnalysis() {
+  if (!fileQueue.length) return;
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('uploadScreen').style.display = 'none';
+  document.getElementById('loadingScreen').style.display = 'flex';
+
+  let allTrades = [], errors = [];
+  for (let i = 0; i < fileQueue.length; i++) {
+    const q = fileQueue[i];
+    document.getElementById('loadingDetail').textContent = `File ${i+1}/${fileQueue.length}: ${q.name}`;
+    try { const t = await readFile(q.file); allTrades = allTrades.concat(t); fileQueue[i].status = 'done'; }
+    catch(e) { fileQueue[i].status = 'error'; errors.push(q.name + ' (' + e.message + ')'); console.error('Parse error for', q.name, e); }
+  }
+
+  if (allTrades.length < 5) { showErr(errors.length ? 'File format samajh nahi aayi: ' + errors.join(', ') + '. Zerodha/Groww/Angel/Edelweiss ki P&L ya Tradebook file upload karo.' : 'Kafi trades nahi mile. Broker ki F&O tradebook ya P&L report upload karo.'); updateFileList(); return; }
+
+  document.getElementById('loadingTxt').textContent = 'AI Coach aapka report bana raha hai...';
+  document.getElementById('loadingDetail').textContent = `${allTrades.length} trades analyse ho rahi hain`;
+
+  try {
+    const a = analyse(allTrades);
+    const filesUsed = fileQueue.filter(f=>f.status==='done').length;
+    await renderResults(a, `${filesUsed} file${filesUsed>1?'s':''} · ${allTrades.length} trades`);
+  } catch(e) { showErr('Analysis error: ' + e.message); updateFileList(); }
+}
+
+function readFile(file) {
+  return new Promise((res, rej) => {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const r = new FileReader();
+    r.onload = e => { try { res(ext==='csv' ? parseCSV(e.target.result) : parseXLSX(XLSX.read(e.target.result,{type:'array'}))); } catch(ex) { rej(ex); } };
+    r.onerror = () => rej(new Error('Read failed'));
+    ext === 'csv' ? r.readAsText(file) : r.readAsArrayBuffer(file);
+  });
+}
+
+// ── PARSERS ───────────────────────────────────────────
+function parseCSV(txt) {
+  const lines = txt.split('\n').filter(l=>l.trim());
+  if (lines.length < 2) throw new Error('Empty');
+  const hdrs = lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const out = [];
+
+  // Check if this is a tradebook (has buy/sell) or P&L report (has profit/gainloss column)
+  const hasPnl = hdrs.some(h=>h.includes('p&l')||h.includes('profit')||h.includes('gainloss')||h.includes('gain/loss')||h.includes('realized'));
+  const hasBuySell = hdrs.some(h=>h.includes('trade_type')||h==='type'||h==='side');
+
+  for (let i=1; i<lines.length; i++) {
+    const v = lines[i].split(',').map(x=>x.trim().replace(/"/g,''));
+    if (v.length < 3) continue;
+    const row = {}; hdrs.forEach((h,j) => row[h]=v[j]||'');
+    const sym = row['symbol']||row['scrip']||row['securityname']||row['security name']||row['instrument']||row['stock name']||'';
+
+    if (hasBuySell && !hasPnl) {
+      // Tradebook format — pair buy/sell later
+      const typ = (row['trade_type']||row['type']||row['side']||'').toLowerCase();
+      const px = parseFloat(row['price']||row['trade_price']||row['avg_price']||row['avg price']||0);
+      const qty = parseFloat(row['quantity']||row['qty']||row['trade qty']||0);
+      const ds = row['order_execution_time']||row['trade_date']||row['date']||row['order date']||row['execution date']||'';
+      const es = row['expiry_date']||row['expiry']||'';
+      if (!sym||!ds||isNaN(px)||isNaN(qty)) continue;
+      const d = new Date(ds); if (isNaN(d)) continue;
+      const exp = es ? new Date(es) : null;
+      out.push({sym,typ,px,qty,val:px*qty,d,h:d.getHours(),dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],mo:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,isExp:exp&&Math.abs(d-exp)<172800000&&typ==='sell'&&px<2});
+    } else {
+      // P&L report format — already has profit column
+      const pnl = parseFloat(row['p&l']||row['profit']||row['realized p&l']||row['realised p&l']||row['gainloss']||row['gain/loss']||row['net p&l']||0);
+      const ds = row['buy date']||row['buydate']||row['trade_date']||row['date']||row['entry date']||row['order date']||'';
+      const bv = parseFloat(row['buy value']||row['buy_value']||0);
+      const sv = parseFloat(row['sell value']||row['sell_value']||0);
+      if (!sym) continue;
+      let d = ds ? new Date(ds) : parseDateFromSymbol(sym);
+      if (!d || isNaN(d)) d = parseDateFromSymbol(sym);
+      if (!d) d = new Date(2023,0,2+Math.floor(Math.random()*250));
+      out.push({sym,typ:'both',px:0,qty:1,val:bv,sv,profit:isNaN(pnl)?(sv-bv):pnl,d,h:d.getHours(),dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],mo:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,isExp:sv===0&&bv>0});
+    }
+  }
+  return out;
+}
+
+function parseXLSX(wb) {
+  const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+  let hr=-1, hc={};
+  for (let i=0; i<Math.min(50,raw.length); i++) {
+    const r = raw[i].map(v=>String(v).toLowerCase().trim());
+    if (r.some(v=>v.includes('symbol')||v.includes('scrip')||v.includes('securityname')||v.includes('security name')||v.includes('instrument')||v.includes('contract')||v.includes('stock name')||v.includes('stock symbol'))) { hr=i; r.forEach((v,j)=>hc[v]=j); break; }
+  }
+  if (hr<0) throw new Error('Header not found');
+  const out = [];
+
+  // Detect symbol column — support many broker formats
+  const si = hc['symbol']??hc['scrip name']??hc['scrip']??hc['securityname']??hc['security name']??hc['security_name']??hc['instrument']??hc['contract']??hc['stock name']??hc['stock symbol']??0;
+
+  // Detect date columns — support many broker formats
+  const bdi = hc['buy date']??hc['buydate']??hc['entry date']??hc['trade_date']??hc['trade date']??hc['date']??hc['order date']??hc['execution date']??hc['order_execution_time']??-1;
+  const sdi = hc['sell date']??hc['selldate']??hc['exit date']??hc['sell_date']??-1;
+
+  // Detect P&L columns
+  const pi = hc['profit']??hc['p&l']??hc['realized p&l']??hc['realised p&l']??hc['gainloss']??hc['gain/loss']??hc['gain_loss']??hc['net profit']??hc['net p&l']??hc['pnl']??-1;
+
+  // Detect value columns
+  const bvi = hc['buy value']??hc['buy_value']??hc['buyvalue']??-1;
+  const svi = hc['sell value']??hc['sell_value']??hc['sellvalue']??-1;
+
+  // Detect price columns (Edelweiss style: BuyPrice, SellPrice, Qty)
+  const bpi = hc['buyprice']??hc['buy price']??hc['buy_price']??hc['entry price']??-1;
+  const spi = hc['sellprice']??hc['sell price']??hc['sell_price']??hc['exit price']??-1;
+  const qi = hc['qty']??hc['quantity']??hc['lot size']??hc['trade qty']??-1;
+
+  for (let i=hr+1; i<raw.length; i++) {
+    const row = raw[i];
+    if (!row||row.every(v=>v==='')) continue;
+
+    const sym = String(row[si]||''); if (!sym||!sym.match(/[A-Z]/i)) continue;
+
+    // Try to get date — from buy date, sell date, or parse from symbol name
+    let d = null;
+    const bdr = bdi>=0?row[bdi]:'';
+    const sdr = sdi>=0?row[sdi]:'';
+    // Try buy date first, then sell date
+    for (const dr of [bdr, sdr]) {
+      if (!dr && dr !== 0) continue;
+      let tryD = (dr instanceof Date) ? dr : (typeof dr==='number' ? new Date((dr-25569)*86400*1000) : new Date(String(dr)));
+      if (!isNaN(tryD)) { d = tryD; break; }
+    }
+
+    // If no date column found, try to extract date from symbol name
+    // Zerodha P&L symbols like: BANKNIFTY20D03, ACC21MAY, NIFTY23JAN
+    if (!d) {
+      d = parseDateFromSymbol(sym);
+    }
+
+    // If still no date, assign a random weekday so the trade still counts for P&L analysis
+    if (!d) {
+      d = new Date(2023, 0, 2 + Math.floor(Math.random()*250)); // spread across ~1yr
+    }
+
+    // Calculate P&L
+    let pnl = pi>=0?parseFloat(row[pi]):NaN;
+    let bv = bvi>=0?parseFloat(row[bvi])||0:0;
+    let sv = svi>=0?parseFloat(row[svi])||0:0;
+
+    // If we have price columns (Edelweiss style), compute buy/sell values
+    if (bpi>=0 && qi>=0) {
+      const bp = parseFloat(row[bpi])||0;
+      const sp = spi>=0?(parseFloat(row[spi])||0):0;
+      const qty = parseFloat(row[qi])||1;
+      if (bv===0) bv = bp * qty;
+      if (sv===0) sv = sp * qty;
+    }
+
+    if (isNaN(pnl)) pnl = (sv-bv) || 0;
+    if (pnl === 0 && bv === 0 && sv === 0) continue; // skip empty rows
+
+    out.push({sym,typ:'both',px:0,qty:qi>=0?(parseFloat(row[qi])||1):1,val:bv,sv,profit:pnl,d,h:d.getHours(),dn:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()],mo:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,isExp:sv===0&&bv>0});
+  }
+  return out;
+}
+
+// Extract date from F&O symbol names
+// Zerodha monthly: ACC21MAY1900CE, BANKNIFTY20DEC29000PE
+// Zerodha weekly:  BANKNIFTY20D0329200PE (YY + single-letter-month + DD + strike)
+//   Month codes: 1-9=Jan-Sep, O=Oct, N=Nov, D=Dec
+// Edelweiss: BANKNIFTY01Oct2020CE21500 (DD + Month + YYYY)
+function parseDateFromSymbol(sym) {
+  const upper = sym.toUpperCase();
+  const monthsMap = {JAN:0,FEB:1,MAR:2,APR:3,MAY:4,JUN:5,JUL:6,AUG:7,SEP:8,OCT:9,NOV:10,DEC:11};
+  const weeklyMonths = {'1':0,'2':1,'3':2,'4':3,'5':4,'6':5,'7':6,'8':7,'9':8,'O':9,'N':10,'D':11};
+
+  // Pattern 1: Edelweiss — BANKNIFTY01Oct2020CE21500
+  let m = upper.match(/(\d{1,2})(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\w*?(\d{4})/);
+  if (m) {
+    const day = parseInt(m[1]) || 1;
+    const mon = monthsMap[m[2]];
+    const yr = parseInt(m[3]);
+    if (mon !== undefined && yr >= 2015 && yr <= 2030) return new Date(yr, mon, Math.min(day,28));
+  }
+
+  // Pattern 2: Zerodha monthly — ACC21MAY1900CE, BANKNIFTY20DEC29000PE
+  m = upper.match(/(\d{2})(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)/);
+  if (m) {
+    const yr = parseInt(m[1]) + 2000;
+    const mon = monthsMap[m[2]];
+    if (mon !== undefined && yr >= 2015 && yr <= 2030) return new Date(yr, mon, 15);
+  }
+
+  // Pattern 3: Zerodha weekly — BANKNIFTY21114, NIFTY20D03, BANKNIFTY20O08
+  // Format after stock name: YY + M(1char) + DD(2digits) + strike
+  m = upper.match(/^[A-Z]+(\d{2})([1-9ONDX])(\d{2})/);
+  if (m) {
+    const yr = parseInt(m[1]) + 2000;
+    const monChar = m[2];
+    const day = parseInt(m[3]);
+    const mon = weeklyMonths[monChar];
+    if (mon !== undefined && yr >= 2015 && yr <= 2030 && day >= 1 && day <= 31) return new Date(yr, mon, day);
+  }
+
+  return null;
+}
+
+// ── PAIR CSV TRADES ───────────────────────────────────
+function pairTrades(raw) {
+  const bySym = {};
+  raw.forEach(t => { if (!bySym[t.sym]) bySym[t.sym]={b:[],s:[]}; (t.typ==='buy'?bySym[t.sym].b:bySym[t.sym].s).push(t); });
+  const out = [];
+  Object.values(bySym).forEach(({b,s}) => {
+    const n = Math.min(b.length,s.length);
+    for (let i=0; i<n; i++) {
+      const buy=b[i], sell=s[i];
+      out.push({sym:buy.sym,profit:(sell.px-buy.px)*Math.min(buy.qty,sell.qty),d:buy.d,h:buy.h,dn:buy.dn,mo:buy.mo,val:buy.val,isExp:sell.px<1});
+    }
+  });
+  return out;
+}
+
+// ── CORE ANALYSIS ─────────────────────────────────────
+function analyse(raw) {
+  let A = raw[0]&&(raw[0].typ==='buy'||raw[0].typ==='sell') ? pairTrades(raw) : raw.filter(t=>t.profit!==undefined&&!isNaN(t.profit));
+  if (A.length < 5) throw new Error('Not enough trades');
+
+  const W=A.filter(t=>t.profit>0), L=A.filter(t=>t.profit<0);
+  const tot=A.reduce((s,t)=>s+t.profit,0);
+  const wr=(W.length/A.length)*100;
+  const aw=W.length?W.reduce((s,t)=>s+t.profit,0)/W.length:0;
+  const al=L.length?L.reduce((s,t)=>s+t.profit,0)/L.length:0;
+  const ratio=al!==0?Math.abs(aw/al):0;
+  const bew=ratio>0?(1/(1+ratio))*100:0;
+
+  // By day
+  const days={};
+  A.forEach(t=>{ if(!days[t.dn])days[t.dn]={pnl:0,n:0,wins:0,losses:0}; days[t.dn].pnl+=t.profit; days[t.dn].n++; if(t.profit>0)days[t.dn].wins++; else days[t.dn].losses++; });
+
+  // By hour
+  const hrs={};
+  A.forEach(t=>{ if(!hrs[t.h])hrs[t.h]={pnl:0,n:0}; hrs[t.h].pnl+=t.profit; hrs[t.h].n++; });
+
+  // By month
+  const months={};
+  A.forEach(t=>{ if(!months[t.mo])months[t.mo]={pnl:0,n:0}; months[t.mo].pnl+=t.profit; months[t.mo].n++; });
+
+  // Thursday
+  const thu=A.filter(t=>t.dn==='Thu');
+  const thuPct=(thu.length/A.length)*100;
+  const thuPnl=thu.reduce((s,t)=>s+t.profit,0);
+  const thuWr=thu.length?(thu.filter(t=>t.profit>0).length/thu.length)*100:0;
+
+  // 9AM
+  const nineAM=A.filter(t=>t.h===9);
+  const nineAMPnl=nineAM.reduce((s,t)=>s+t.profit,0);
+  const nineAMWr=nineAM.length?(nineAM.filter(t=>t.profit>0).length/nineAM.length)*100:0;
+
+  // Worst / best hour
+  const hE=Object.entries(hrs).filter(([h])=>parseInt(h)>=9&&parseInt(h)<=15);
+  const wH=hE.length?[...hE].sort((a,b)=>a[1].pnl-b[1].pnl)[0]:null;
+  const bH=hE.length?[...hE].sort((a,b)=>b[1].pnl-a[1].pnl)[0]:null;
+
+  // Worst / best day
+  const dE=Object.entries(days).filter(([d])=>['Mon','Tue','Wed','Thu','Fri'].includes(d));
+  const wD=dE.length?[...dE].sort((a,b)=>a[1].pnl-b[1].pnl)[0]:null;
+  const bD=dE.length?[...dE].sort((a,b)=>b[1].pnl-a[1].pnl)[0]:null;
+
+  // Revenge trades
+  const sorted=[...A].sort((a,b)=>a.d-b.d);
+  let rev=0, revLoss=0;
+  for (let i=1; i<sorted.length; i++) {
+    const p=sorted[i-1], c=sorted[i];
+    if (p.profit<0) { const diff=(c.d-p.d)/60000; if(diff<20&&diff>=0){rev++; if(c.profit<0)revLoss+=c.profit;} }
+  }
+
+  // Streak analysis
+  let maxWinStreak=0, maxLossStreak=0, curW=0, curL=0;
+  sorted.forEach(t=>{ if(t.profit>0){curW++;curL=0;maxWinStreak=Math.max(maxWinStreak,curW);}else{curL++;curW=0;maxLossStreak=Math.max(maxLossStreak,curL);} });
+
+  // Expired worthless
+  const expired=A.filter(t=>t.isExp);
+  const expiredVal=expired.reduce((s,t)=>s+(t.val||0),0);
+
+  // Biggest win / loss day
+  const byDate={};
+  A.forEach(t=>{ const dk=t.d.toDateString(); if(!byDate[dk])byDate[dk]={pnl:0,n:0}; byDate[dk].pnl+=t.profit; byDate[dk].n++; });
+  const dateArr=Object.entries(byDate);
+  const bestDay2=dateArr.length?[...dateArr].sort((a,b)=>b[1].pnl-a[1].pnl)[0]:null;
+  const worstDay2=dateArr.length?[...dateArr].sort((a,b)=>a[1].pnl-b[1].pnl)[0]:null;
+
+  // Post win behaviour — check if big win followed by big loss
+  let postWinLoss=0;
+  for (let i=1; i<sorted.length; i++) {
+    if (sorted[i-1].profit > aw*2 && sorted[i].profit < al*2) postWinLoss++;
+  }
+
+  return {
+    tot,wr,wins:W.length,losses:L.length,total:A.length,aw,al,ratio,bew,
+    days,hrs,months,
+    thuPct,thuPnl,thuWr,nineAM:nineAM.length,nineAMPnl,nineAMWr,
+    wH,bH,wD,bD,rev,revLoss,
+    maxWinStreak,maxLossStreak,expired:expired.length,expiredVal,
+    bestDay2,worstDay2,postWinLoss,
+    tradingDays:Object.keys(byDate).length
+  };
+}
+
+// ── FORMAT ────────────────────────────────────────────
+function f(n,abs=false) {
+  if (isNaN(n)) return '0';
+  const a=Math.abs(n), s=(n<0&&!abs)?'-':'';
+  if (a>=100000) return s+(a/100000).toFixed(1)+'L';
+  if (a>=1000) return s+(a/1000).toFixed(1)+'K';
+  return s+Math.round(a).toString();
+}
+
+function fDate(str) {
+  const d=new Date(str);
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+}
+
+// ── RENDER ────────────────────────────────────────────
+async function renderResults(a, subtitle) {
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('resultsWrap').style.display='block';
+  document.getElementById('rSub').textContent = subtitle;
+
+  // Stat grid
+  const pc=a.tot>=0?'c-green':'c-red';
+  document.getElementById('statGrid').innerHTML=`
+    <div class="stat-cell"><div class="stat-n ${pc}">₹${f(Math.abs(a.tot))}</div><div class="stat-l">${a.tot>=0?'Total Profit':'Total Loss'}</div><div class="stat-s">${a.tradingDays} trading days</div></div>
+    <div class="stat-cell"><div class="stat-n c-blue">${a.wr.toFixed(0)}%</div><div class="stat-l">Win Rate</div><div class="stat-s">${a.wins} jeete · ${a.losses} haare</div></div>
+    <div class="stat-cell"><div class="stat-n ${a.ratio>=1?'c-green':'c-red'}">${a.ratio.toFixed(2)}</div><div class="stat-l">Win/Loss Ratio</div><div class="stat-s">${a.ratio>=1?'✓ Healthy':'⚠ Needs fix'}</div></div>
+    <div class="stat-cell"><div class="stat-n c-amber">${a.total}</div><div class="stat-l">Total Trades</div><div class="stat-s">Avg ${(a.total/Math.max(a.tradingDays,1)).toFixed(1)}/day</div></div>
+    <div class="stat-cell"><div class="stat-n ${a.thuPct>30?'c-red':'c-amber'}">${a.thuPct.toFixed(0)}%</div><div class="stat-l">Thursday Trades</div><div class="stat-s">₹${f(a.thuPnl)} total</div></div>
+    <div class="stat-cell"><div class="stat-n ${a.rev>10?'c-red':'c-amber'}">${a.rev}</div><div class="stat-l">Revenge Trades</div><div class="stat-s">${a.rev>0?'₹'+f(a.revLoss)+' extra loss':'-'}</div></div>`;
+
+  // Insight cards
+  const cards = buildInsightCards(a);
+  document.getElementById('insightsGrid').innerHTML = cards.map(c => `
+    <div class="insight-card severity-${c.sev}">
+      <div class="ic-severity ${c.sev}">${c.sevLabel}</div>
+      <div class="ic-number" style="color:${c.color}">${c.num}</div>
+      <div class="ic-label">${c.label}</div>
+      <div class="ic-desc">${c.desc}</div>
+      ${c.action?`<div class="ic-action ${c.sev}">${c.action}</div>`:''}
+    </div>`).join('');
+
+  // Pattern stories
+  document.getElementById('patternStories').innerHTML = buildStories(a);
+
+  // Day bars
+  const DAYS=['Mon','Tue','Wed','Thu','Fri'];
+  const dv=DAYS.map(d=>a.days[d]?.pnl||0);
+  const md=Math.max(...dv.map(Math.abs),1);
+  document.getElementById('dayBars').innerHTML=DAYS.map((d,i)=>{
+    const pnl=dv[i], pct=(Math.abs(pnl)/md)*100, col=pnl>=0?'var(--green)':'var(--red)';
+    const n=a.days[d]?.n||0;
+    const wr2=a.days[d]?((a.days[d].wins||0)/a.days[d].n*100).toFixed(0):0;
+    const isBest=a.bD&&a.bD[0]===d;
+    const isWorst=a.wD&&a.wD[0]===d;
+    return`<div class="bar-row"><div class="bar-lbl">${d}${isBest?' ⭐':isWorst?' ⚠':''}${d==='Thu'?' 🔴':''}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><div class="bar-val" style="color:${col}">₹${f(pnl)}</div></div><div class="${pnl>=0?'bar-best':'bar-cnt'}">${n} trades · ${wr2}% win rate</div>`;
+  }).join('');
+
+  // Hour bars
+  const HRS=[9,10,11,12,13,14,15];
+  const hv=HRS.map(h=>a.hrs[h]?.pnl||0);
+  const mh=Math.max(...hv.map(Math.abs),1);
+  document.getElementById('hourBars').innerHTML=HRS.map((h,i)=>{
+    const pnl=hv[i], pct=(Math.abs(pnl)/mh)*100, col=pnl>=0?'var(--green)':'var(--red)';
+    const n=a.hrs[h]?.n||0;
+    const isWorst=a.wH&&parseInt(a.wH[0])===h;
+    const isBest=a.bH&&parseInt(a.bH[0])===h;
+    return`<div class="bar-row"><div class="bar-lbl">${h}:xx${isWorst?' ⚠':isBest?' ⭐':''}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><div class="bar-val" style="color:${col}">₹${f(pnl)}</div></div><div class="${pnl>=0?'bar-best':'bar-cnt'}">${n} trades</div>`;
+  }).join('');
+
+  // Ratio card
+  const ww=Math.min(Math.max(a.ratio*90,40),200), lw=200;
+  const extraWinsNeeded=a.al!==0?Math.ceil(Math.abs(a.al)/Math.max(a.aw,1)):0;
+  document.getElementById('ratioCard').innerHTML=`
+    <div class="story-head"><div class="story-title">Ek loss kaafi nahi — ${extraWinsNeeded} wins chahiye recover karne ke liye</div><div class="story-badge ${a.ratio>=1?'badge-green':'badge-red'}">${a.ratio>=1?'Healthy':'Broken'}</div></div>
+    <div class="ratio-visual">
+      <div class="rv-win" style="flex:${Math.max(a.ratio,0.2)}"><div class="rv-label">AVG WIN</div><div class="rv-val" style="color:var(--green)">₹${f(a.aw)}</div></div>
+      <div class="rv-loss" style="flex:1"><div class="rv-label">AVG LOSS</div><div class="rv-val" style="color:var(--red)">₹${f(Math.abs(a.al))}</div></div>
+    </div>
+    <div class="ratio-story">
+      Aap ek trade jeette ho <strong>₹${f(a.aw)}</strong> mein. Aur ek trade haarte ho <strong>₹${f(Math.abs(a.al))}</strong> mein. 
+      Matlab ek loss cover karne ke liye <strong>${extraWinsNeeded} consecutive wins</strong> chahiye. 
+      ${a.wr<a.bew?`Aapka current win rate ${a.wr.toFixed(0)}% hai lekin break even ke liye <strong>${a.bew.toFixed(0)}%</strong> chahiye — math kaam nahi kar raha.`:`Aapka win rate ${a.wr.toFixed(0)}% break even (${a.bew.toFixed(0)}%) se zyada hai — math aapke favor mein hai.`}
+    </div>
+    <div class="ratio-breakeven">
+      <span class="rbe-label">Break-even ke liye minimum win rate:</span>
+      <span class="rbe-val" style="color:${a.wr>=a.bew?'var(--green)':'var(--red)'}">${a.bew.toFixed(0)}%</span>
+      <span class="rbe-label">· Abhi aap:</span>
+      <span class="rbe-val" style="color:var(--accent)">${a.wr.toFixed(0)}%</span>
+      <span style="font-size:14px">${a.wr>=a.bew?'✅':'❌'}</span>
+    </div>`;
+
+  // Monthly trend
+  const sortedMonths = Object.entries(a.months).sort((a,b)=>a[0].localeCompare(b[0]));
+  const maxMonthPnl = Math.max(...sortedMonths.map(([,v])=>Math.abs(v.pnl)),1);
+  document.getElementById('monthlyTrend').innerHTML=`<div class="monthly-grid">${sortedMonths.map(([mo,v])=>{
+    const pct=(Math.abs(v.pnl)/maxMonthPnl)*100;
+    const col=v.pnl>=0?'var(--green)':'var(--red)';
+    const moLabel=new Date(mo+'-01').toLocaleDateString('en-IN',{month:'short',year:'2-digit'});
+    return`<div class="month-row"><div class="month-lbl">${moLabel}</div><div class="month-bar-track"><div class="month-bar-fill" style="width:${pct}%;background:${col}"><span class="month-bar-text">${v.n} trades</span></div></div><div class="month-val" style="color:${col}">₹${f(v.pnl)}</div></div>`;
+  }).join('')}</div>`;
+
+  // Recommendations
+  document.getElementById('recSection').innerHTML = buildRecs(a);
+
+  // AI Coach — generate after render
+  generateCoachMessage(a);
+}
+
+// ── INSIGHT CARDS ─────────────────────────────────────
+function buildInsightCards(a) {
+  const cards = [];
+
+  // Win rate card
+  if (a.wr > 50 && a.tot < 0) {
+    cards.push({sev:'high',sevLabel:'Critical Pattern',color:'var(--red)',num:`${a.wr.toFixed(0)}%`,label:'Win rate — phir bhi loss',desc:`Aap zyada trades jeette ho. Phir bhi haarte ho. Ye "winner's trap" hai — small profits, big losses.`,action:'Win/Loss ratio fix karo'});
+  } else {
+    cards.push({sev:a.wr>50?'good':'medium',sevLabel:a.wr>50?'Positive':'Needs Work',color:a.wr>50?'var(--green)':'var(--amber)',num:`${a.wr.toFixed(0)}%`,label:'Win Rate',desc:`${a.wins} profitable trades aur ${a.losses} loss trades. ${a.wr>50?'Win rate achha hai.':'Win rate improve ho sakta hai.'}`});
+  }
+
+  // Worst hour
+  if (a.wH) {
+    const wHour = parseInt(a.wH[0]);
+    cards.push({sev:'high',sevLabel:'Danger Zone',color:'var(--red)',num:`${a.wH[0]}:xx`,label:'Sabse bura trading hour',desc:`Is ek hour mein ₹${f(Math.abs(a.wH[1].pnl))} ka loss — ${a.wH[1].n} trades mein. Agar aap sirf ye hour band kar do...`,action:`₹${f(Math.abs(a.wH[1].pnl))} bachega`});
+  }
+
+  // Thursday
+  if (a.thuPct > 20) {
+    cards.push({sev:a.thuPct>35?'high':'medium',sevLabel:a.thuPct>35?'Serious Issue':'Watch Out',color:a.thuPct>35?'var(--red)':'var(--amber)',num:`${a.thuPct.toFixed(0)}%`,label:'Thursday trades',desc:`${a.thuPct.toFixed(0)}% trades sirf Thursday ko. 0DTE options mein theta decay har minute aapke against.`,action:a.thuPnl<0?`₹${f(Math.abs(a.thuPnl))} lost`:undefined});
+  }
+
+  // Revenge trades
+  if (a.rev > 3) {
+    cards.push({sev:a.rev>15?'high':'medium',sevLabel:'Behaviour Alert',color:'var(--red)',num:a.rev,label:'Revenge trades',desc:`Loss ke 20 min ke andar ${a.rev} baar wapas ghuse. Emotion mein ki gayi trades almost kabhi kaam nahi karti.`,action:'30 min rule lagao'});
+  }
+
+  // Max loss streak
+  if (a.maxLossStreak > 5) {
+    cards.push({sev:'medium',sevLabel:'Streak Risk',color:'var(--amber)',num:a.maxLossStreak,label:'Consecutive losses',desc:`Ek baar ${a.maxLossStreak} trades back-to-back haare. Is situation mein circuit breaker hona chahiye tha.`});
+  }
+
+  // Expired worthless
+  if (a.expired > 2) {
+    cards.push({sev:'medium',sevLabel:'Capital Drain',color:'var(--amber)',num:a.expired,label:'Options expired worthless',desc:`${a.expired} options zero pe expire hue — ₹${f(a.expiredVal)} ka capital hua zero. 0DTE buying ka risk ye hai.`});
+  }
+
+  // Best hour
+  if (a.bH && a.bH[1].pnl > 0) {
+    cards.push({sev:'good',sevLabel:'Your Strength',color:'var(--green)',num:`${a.bH[0]}:xx`,label:'Sabse achha trading hour',desc:`${a.bH[0]}:xx pe aapne ₹${f(a.bH[1].pnl)} ka profit kamaya. Ye aapka sweet spot hai.`,action:'Is waqt zyada focus karo'});
+  }
+
+  return cards.slice(0, 6);
+}
+
+// ── PATTERN STORIES ───────────────────────────────────
+function buildStories(a) {
+  const stories = [];
+
+  // Story 1: 9AM problem
+  if (a.nineAM > 5 && a.nineAMPnl < 0) {
+    stories.push(`
+      <div class="story-card warning">
+        <div class="story-head">
+          <div class="story-title">⏰ "9:15 AM pe screen khola aur ₹${f(Math.abs(a.nineAMPnl))} dub gaye"</div>
+          <div class="story-badge badge-red">High Risk</div>
+        </div>
+        <div class="story-body">
+          Aapne <strong>${a.nineAM} trades</strong> subah 9AM pe ki — market khulte hi. Is waqt volatility sabse zyada hoti hai, spreads wide hote hain, aur institutional algo traders retail traders ko systematically out-maneuver karte hain.
+          <br><br>
+          Result? <strong>₹${f(Math.abs(a.nineAMPnl))} ka loss</strong> sirf ek ghante mein. Win rate is window mein: <strong>${a.nineAMWr.toFixed(0)}%</strong>.
+          ${a.bH ? `<br><br>Compare karo: ${a.bH[0]}:xx pe aapne ₹${f(a.bH[1].pnl)} kamaye. Ek ghante ka fark itna bada result.` : ''}
+        </div>
+        <div class="story-data">
+          <div class="sd-item"><div class="sd-num c-red">₹${f(Math.abs(a.nineAMPnl))}</div><div class="sd-lbl">9AM total loss</div></div>
+          <div class="sd-item"><div class="sd-num c-amber">${a.nineAM}</div><div class="sd-lbl">trades in 9AM</div></div>
+          <div class="sd-item"><div class="sd-num c-red">${a.nineAMWr.toFixed(0)}%</div><div class="sd-lbl">win rate 9AM</div></div>
+        </div>
+        <div class="story-action">Agle hafte 10:30 AM ke pehle koi trade mat karo. Difference dekho.</div>
+      </div>`);
+  }
+
+  // Story 2: Thursday addiction
+  if (a.thuPct > 25) {
+    stories.push(`
+      <div class="story-card ${a.thuPnl<0?'warning':'caution'}">
+        <div class="story-head">
+          <div class="story-title">📅 "${a.thuPct.toFixed(0)}% trades sirf Thursday — expiry day addiction"</div>
+          <div class="story-badge ${a.thuPnl<0?'badge-red':'badge-amber'}">Pattern Found</div>
+        </div>
+        <div class="story-body">
+          Har week ka <strong>${a.thuPct.toFixed(0)}% trading</strong> Thursday ko hota hai. Ye random nahi — ye ek psychological pattern hai.
+          <br><br>
+          Thursday ko cheap options attractive lagte hain — ₹5, ₹10, ₹20 ke premiums. "Kam investment mein zyada return" ka illusion. Lekin ye theta decay ignore karta hai. Expiry ke din option value har ghante mein dramatically girti hai.
+          <br><br>
+          Aapka Thursday P&L: <strong>₹${f(a.thuPnl)}</strong>. Win rate: <strong>${a.thuWr.toFixed(0)}%</strong>.
+          ${a.thuPnl<0?'<br><br>Ye paisa market ne nahi liya — theta ne liya. Waqt ke saath option ki value automatically ghatti hai.':''}
+        </div>
+        <div class="story-data">
+          <div class="sd-item"><div class="sd-num ${a.thuPnl<0?'c-red':'c-green'}">₹${f(a.thuPnl)}</div><div class="sd-lbl">Thursday P&L</div></div>
+          <div class="sd-item"><div class="sd-num c-amber">${a.thuPct.toFixed(0)}%</div><div class="sd-lbl">% of all trades</div></div>
+          <div class="sd-item"><div class="sd-num c-amber">${a.thuWr.toFixed(0)}%</div><div class="sd-lbl">win rate Thu</div></div>
+        </div>
+        <div class="story-action">30 din Thursday trading band karo — results khud bolenge.</div>
+      </div>`);
+  }
+
+  // Story 3: Revenge spiral
+  if (a.rev > 5) {
+    stories.push(`
+      <div class="story-card warning">
+        <div class="story-head">
+          <div class="story-title">🔄 "${a.rev} baar loss ke baad 20 min ke andar wapas ghuse"</div>
+          <div class="story-badge badge-red">Revenge Trading</div>
+        </div>
+        <div class="story-body">
+          Loss ke baad <strong>${a.rev} times</strong> aap 20 minute ke andar wapas market mein gaye. Ye revenge trading hai — emotional state mein rational decision-making impossible ho jaata hai.
+          <br><br>
+          Loss ke baad cortisol aur adrenaline surge hota hai. Brain loss recover karna chahta hai immediately. Is state mein aap higher risk lete ho, position sizing bhool jaate ho, aur loss cut nahi karte.
+          <br><br>
+          ${a.revLoss < 0 ? `Ye revenge trades ₹${f(Math.abs(a.revLoss))} ki extra loss laye — woh original loss ke upar.` : ''}
+        </div>
+        <div class="story-data">
+          <div class="sd-item"><div class="sd-num c-red">${a.rev}</div><div class="sd-lbl">revenge trades</div></div>
+          ${a.revLoss<0?`<div class="sd-item"><div class="sd-num c-red">₹${f(Math.abs(a.revLoss))}</div><div class="sd-lbl">extra loss</div></div>`:''}
+          <div class="sd-item"><div class="sd-num c-amber">20 min</div><div class="sd-lbl">the danger window</div></div>
+        </div>
+        <div class="story-action">Rule: Koi bhi loss ke baad 30 minute mandatory break.</div>
+      </div>`);
+  }
+
+  // Story 4: Win/Loss ratio problem
+  if (a.ratio < 0.6 && a.wr > 45) {
+    const extraNeeded = Math.ceil(Math.abs(a.al) / Math.max(a.aw, 1));
+    stories.push(`
+      <div class="story-card warning">
+        <div class="story-head">
+          <div class="story-title">📊 "Jeette zyada hain — haarte phir bhi ho. Ye sabse bada trap hai."</div>
+          <div class="story-badge badge-red">Silent Killer</div>
+        </div>
+        <div class="story-body">
+          Aap <strong>${a.wr.toFixed(0)}% trades jeette ho</strong> — ye achha lagta hai. Lekin average win <strong>₹${f(a.aw)}</strong> hai aur average loss <strong>₹${f(Math.abs(a.al))}</strong>.
+          <br><br>
+          Matlab: ek loss cover karne ke liye <strong>${extraNeeded} wins chahiye</strong>. Aur tab bhi aap sirf break even pe hote.
+          <br><br>
+          Ye isliye hota hai kyunki hum profits jaldi lete hain (fear of giving back) aur losses hold karte hain (hope ki recover hoga). Ye human psychology hai — aur isko consciously fix karna padta hai.
+        </div>
+        <div class="story-data">
+          <div class="sd-item"><div class="sd-num c-green">₹${f(a.aw)}</div><div class="sd-lbl">avg win</div></div>
+          <div class="sd-item"><div class="sd-num c-red">₹${f(Math.abs(a.al))}</div><div class="sd-lbl">avg loss</div></div>
+          <div class="sd-item"><div class="sd-num c-amber">${extraNeeded}x</div><div class="sd-lbl">wins per loss needed</div></div>
+        </div>
+        <div class="story-action">Entry ke saath exit target bhi set karo — pehle se.</div>
+      </div>`);
+  }
+
+  // Story 5: Best day / worst day
+  if (a.worstDay2) {
+    stories.push(`
+      <div class="story-card caution">
+        <div class="story-head">
+          <div class="story-title">📆 Aapke best aur worst trading days</div>
+          <div class="story-badge badge-amber">Day Analysis</div>
+        </div>
+        <div class="story-body">
+          ${a.bestDay2?`Aapka best day: <strong>${fDate(a.bestDay2[0])}</strong> — ₹${f(a.bestDay2[1].pnl)} ka profit ${a.bestDay2[1].n} trades mein.`:''}
+          <br>
+          Aapka worst day: <strong>${fDate(a.worstDay2[0])}</strong> — ₹${f(Math.abs(a.worstDay2[1].pnl))} ka loss ${a.worstDay2[1].n} trades mein.
+          <br><br>
+          ${a.postWinLoss > 2 ? `⚠️ Pattern mila: Aap ${a.postWinLoss} baar bade win ke baad agla trade heavily lose kiya. Post-win overconfidence ek real risk hai.` : ''}
+        </div>
+        <div class="story-data">
+          ${a.bestDay2?`<div class="sd-item"><div class="sd-num c-green">₹${f(a.bestDay2[1].pnl)}</div><div class="sd-lbl">best day P&L</div></div>`:''}
+          <div class="sd-item"><div class="sd-num c-red">₹${f(Math.abs(a.worstDay2[1].pnl))}</div><div class="sd-lbl">worst day P&L</div></div>
+          <div class="sd-item"><div class="sd-num c-amber">${a.maxLossStreak}</div><div class="sd-lbl">max loss streak</div></div>
+        </div>
+        <div class="story-action">Daily loss limit set karo — morning mein, market khulne se pehle.</div>
+      </div>`);
+  }
+
+  if (stories.length === 0) {
+    stories.push(`<div class="story-card positive"><div class="story-head"><div class="story-title">✅ Koi major negative pattern nahi mila</div><div class="story-badge badge-green">Clean Report</div></div><div class="story-body">Aapka trading data relatively clean hai. Major behavioural issues nahi hain. Ab focus karo consistency pe aur win/loss ratio improve karne pe.</div></div>`);
+  }
+
+  return stories.join('');
+}
+
+// ── RECOMMENDATIONS ───────────────────────────────────
+function buildRecs(a) {
+  const recs = [];
+
+  if (a.wH && parseInt(a.wH[0]) <= 10) {
+    recs.push({
+      priority:'high', level:'High Priority',
+      title:`Subah ${a.wH[0]}:xx mein trading band karo`,
+      desc:`Is ek change se aap ₹${f(Math.abs(a.wH[1].pnl))} bachenge. Koi strategy nahi badalni — sirf timing.`,
+      impact:`Estimated saving: ₹${f(Math.abs(a.wH[1].pnl))}`
+    });
+  }
+
+  if (a.thuPct > 25 && a.thuPnl < 0) {
+    recs.push({
+      priority:'high', level:'High Priority',
+      title:'30 din Thursday trading band karo',
+      desc:`Thursday pe ₹${f(Math.abs(a.thuPnl))} ka loss. Sirf ye ek experiment karo — 30 din Thursday zero trades.`,
+      impact:`Potential saving: ₹${f(Math.abs(a.thuPnl))}`
+    });
+  }
+
+  if (a.rev > 5) {
+    recs.push({
+      priority:'high', level:'High Priority',
+      title:'Loss ke baad 30 minute mandatory break',
+      desc:'Koi bhi loss ke baad — chahe ₹100 ka ho — phone neeche rakh do. 30 minute baad wapas aao.',
+      impact:'Revenge trades eliminate karo'
+    });
+  }
+
+  if (a.ratio < 1) {
+    recs.push({
+      priority:'medium', level:'Medium Priority',
+      title:'Har trade mein profit target set karo',
+      desc:`Stop loss ke saath profit target bhi decide karo — trade enter karne se pehle. Exit rule pehle se define karo.`,
+      impact:'Win/Loss ratio improve karega'
+    });
+  }
+
+  if (a.maxLossStreak > 4) {
+    recs.push({
+      priority:'medium', level:'Medium Priority',
+      title:`3 consecutive losses ke baad trading band karo us din`,
+      desc:`Aapka max loss streak ${a.maxLossStreak} tha. 3 losses ke baad screen band karo — uss din ke liye.`,
+      impact:'Catastrophic loss days eliminate karo'
+    });
+  }
+
+  recs.push({
+    priority:'low', level:'Weekly Habit',
+    title:'Har Sunday 10 minute — behaviour review',
+    desc:'P&L nahi dekho — patterns dekho. Kitni baar 9AM pe trade ki, kitni Thursday, kitne revenge. Ye number track karo weekly.',
+    impact:'Self-awareness builds over time'
+  });
+
+  const priorityMap = {high:'high', medium:'medium', low:'low'};
+  return `<div class="rec-section"><div class="rec-header"><div class="rec-eyebrow">Action Plan</div><div class="rec-title">Pehle ye ${Math.min(recs.length,5)} cheezein implement karo</div></div><div class="rec-items">${recs.slice(0,5).map((r,i)=>`<div class="rec-item"><div class="rec-num ${priorityMap[r.priority]}">${i+1}</div><div class="rec-body"><div class="rec-item-title">${r.title}</div><div class="rec-item-desc">${r.desc}</div>${r.impact?`<div class="rec-impact">↑ ${r.impact}</div>`:''}</div></div>`).join('')}</div></div>`;
+}
+
+// ── AI COACH MESSAGE ──────────────────────────────────
+async function generateCoachMessage(a) {
+  const coachBox = document.getElementById('coachBox');
+
+  const prompt = `You are MyKavach, an AI trading behaviour coach for Indian F&O traders. Speak in Hinglish (mix of Hindi and English) — warm, direct, like a trusted friend who has also lost money in trading.
+
+Here is the trader's data:
+- Total P&L: ₹${f(a.tot)} (${a.tot>=0?'profit':'loss'})
+- Total trades: ${a.total} over ${a.tradingDays} days
+- Win rate: ${a.wr.toFixed(0)}%
+- Win/Loss ratio: ${a.ratio.toFixed(2)} (need ${a.bew.toFixed(0)}% win rate to break even)
+- Average win: ₹${f(a.aw)}, Average loss: ₹${f(Math.abs(a.al))}
+- Thursday trades: ${a.thuPct.toFixed(0)}% of all trades, Thursday P&L: ₹${f(a.thuPnl)}
+- 9AM trades: ${a.nineAM}, 9AM P&L: ₹${f(a.nineAMPnl)}
+- Revenge trades: ${a.rev}
+- Worst hour: ${a.wH?a.wH[0]+':xx (₹'+f(a.wH[1].pnl)+')':'N/A'}
+- Best hour: ${a.bH?a.bH[0]+':xx (₹'+f(a.bH[1].pnl)+')':'N/A'}
+- Max loss streak: ${a.maxLossStreak}
+
+Write a 3-4 sentence personal message to this trader. Be specific with their numbers. Be like a doctor reading their report — not generic, not preachy. Point out the single most important thing they should change. End with one specific action they should take tomorrow morning. 
+
+Do NOT use bullet points. Write as flowing Hinglish text. Be empathetic but honest. Maximum 120 words.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    const msg = data.content?.[0]?.text || getFallbackMessage(a);
+
+    coachBox.innerHTML = `
+      <div class="coach-tag">MyKavach AI Coach</div>
+      <div class="coach-verdict">${getVerdictLine(a)}</div>
+      <div class="coach-body">${msg}</div>`;
+  } catch(e) {
+    coachBox.innerHTML = `
+      <div class="coach-tag">MyKavach Coach</div>
+      <div class="coach-verdict">${getVerdictLine(a)}</div>
+      <div class="coach-body">${getFallbackMessage(a)}</div>`;
+  }
+}
+
+function getVerdictLine(a) {
+  if (a.tot >= 0 && a.ratio >= 1) return 'Aap profitable ho — aur math bhi aapke favor mein hai.';
+  if (a.tot < 0 && a.wr > 55) return `${a.wr.toFixed(0)}% trades jeette ho — phir bhi ₹${f(Math.abs(a.tot))} ka loss. Ye sabse painful pattern hai.`;
+  if (a.rev > 10) return `${a.rev} revenge trades — ye data bol raha hai ki emotions trading kar rahe hain, aap nahi.`;
+  if (a.thuPct > 35) return `${a.thuPct.toFixed(0)}% trades Thursday ko — Thursday ne hi aapka sabse zyada paisa liya.`;
+  if (a.tot < 0) return `₹${f(Math.abs(a.tot))} ka loss — lekin ye data mein hai, aur data fix ho sakta hai.`;
+  return 'Aapki trading mein kuch patterns hain jo improvement ki jagah deta hai.';
+}
+
+function getFallbackMessage(a) {
+  const msgs = [];
+  if (a.nineAMPnl < -1000 && a.nineAM > 5) msgs.push(`Aapne 9AM pe ₹${f(Math.abs(a.nineAMPnl))} dube — kal se 10:30 ke pehle koi trade mat karna.`);
+  if (a.thuPct > 30 && a.thuPnl < 0) msgs.push(`Thursday pe ${a.thuPct.toFixed(0)}% trades karte ho aur ₹${f(Math.abs(a.thuPnl))} haarte ho — ek mahine ke liye Thursday trading band karo.`);
+  if (a.rev > 5) msgs.push(`${a.rev} revenge trades detect hue — loss ke baad 30 minute ka mandatory break lo.`);
+  if (a.ratio < 0.5) msgs.push(`Win/Loss ratio ${a.ratio.toFixed(2)} hai — profit targets set karna shuru karo entry ke saath.`);
+  if (msgs.length === 0) msgs.push(`Aapki trading data mein kuch patterns hain. Upar diye patterns aur recommendations dhyan se dekho.`);
+  return msgs.slice(0,2).join(' ');
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function showLoad() { document.getElementById('uploadScreen').style.display='none'; document.getElementById('loadingScreen').style.display='flex'; }
+function showErr(m) {
+  document.getElementById('uploadScreen').style.display='flex';
+  document.getElementById('loadingScreen').style.display='none';
+  const e=document.getElementById('errorBox'); e.style.display='block'; e.textContent='⚠️ '+m;
+}
+function resetApp() {
+  fileQueue=[];
+  document.getElementById('resultsWrap').style.display='none';
+  document.getElementById('uploadScreen').style.display='flex';
+  document.getElementById('fileList').style.display='none';
+  document.getElementById('actionRow').style.display='none';
+  document.getElementById('errorBox').style.display='none';
+  try { document.getElementById('fileInput').value=''; } catch(e) {}
+  document.getElementById('loadingTxt').textContent='Aapki trades analyse ho rahi hain...';
+}
+</script>
+</body>
+</html>
